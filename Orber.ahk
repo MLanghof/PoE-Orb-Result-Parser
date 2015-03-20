@@ -2,8 +2,6 @@
 #Persistent
 Menu, Tray, Icon, Fuse.ico
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Setup the mode in which files are written.                   ;;
 ;;   AUTO: Guesses on a best-effort basis.	                    ;;
@@ -14,33 +12,11 @@ Menu, Tray, Icon, Fuse.ico
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 FileMode := "AUTO"
 
-; Name of the file that stores the last reference item.
-;LastReference_FileName := "LastReferenceItem.clip"
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-; Look up what the last set reference item was, so we can continue where we left off.
-;ClipSaved := Clipboard
-;CtrlCSource := "Saved"
-;FileRead, Clipboard, *c %LastReference_FileName% 
-
-;ReferenceItem := ParseClipboardItem()
-;Clipboard := ClipSaved
-;ClipSaved =   ; Free the memory in case the clipboard was very large.
-;CtrlCSource := "None"
-
-;MsgBox, Done parsing saved clipboard.
-;MsgBox, % ReferenceItem.Name
-;MsgBox, % ReferenceItem.Rarity
-;MsgBox, % ReferenceItem.Affixes
-;MsgBox, % ReferenceItem.SocketCount
-;MsgBox, % ReferenceItem.LinkSetup
-;MsgBox, % ReferenceItem.Itemlevel
-;MsgBox, % ReferenceItem.Quality
 return
 ; End of auto-execute section
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 
 ; Only react when PoE has focus.
 #IfWinActive, Path of Exile ahk_exe PathOfExile.exe
@@ -212,13 +188,6 @@ OnCopyItem()
 			return
 		}
 	}
-	
-	
-	;ToolTip %Affixes%
-	;Sleep 2000
-	;ToolTip  ; Turn off the tip.
-
-	;FileAppend, %ClipboardAll%, %LastReference_FileName%
 
 	LastItem := ObjClone(Item)
 	
@@ -412,12 +381,3 @@ MakeTooltip(Message, Duration)
 TooltipTimer:
 	ToolTip
 return
-
-;ChangeButtonNames: 
-;IfWinNotExist, Fusing or Rolling
-;    return  ; Keep waiting.
-;SetTimer, ChangeButtonNames, off 
-;WinActivate 
-;ControlSetText, Button1, &Fused/Jewelered
-;ControlSetText, Button2, &Rolled affixes
-;return
