@@ -14,21 +14,26 @@ FileMode := "AUTO"
 
 return
 ; End of auto-execute section
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 
 ; Only react when PoE has focus.
 #IfWinActive, Path of Exile ahk_exe PathOfExile.exe
 
+; Using keyboard hook prevents hotkeys from triggering themselves.
+#UseHook 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; The keycode should allow it to work for non-latin keyboards. ;;
+;; If you want to change it and are using a latin keyboard, you ;;
+;; can just use the normal AHK hotkey format (like ^n and ^c).	;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Default hotkey for parsing a new item: Ctrl+N
-$^n::
+LControl & SC031::
 	CtrlCSource := "NewItem"
 	Send, ^c
 return
-
 ; Default hotkey for continued item parsing: Ctrl+C
-$^c::
+LControl & SC02E::
 	CtrlCSource := "CopyItem"
 	Send, ^c
 return
@@ -44,7 +49,8 @@ return
 
 OnNewItem()
 {
-	local NewReferenceItem := ParseClipboardItem() ; Also makes the rest of the function global
+	; Also makes the rest of the function global
+	local NewReferenceItem := ParseClipboardItem()
 	If (BasicItemCheck(NewReferenceItem) == False)
 	{
 		MsgBox, Error: Invalid item.`nCouldn't set reference item.
@@ -154,7 +160,13 @@ OnCopyItem()
 		
 		FileName := ReferenceItem.Name . "_i" . ReferenceItem.Itemlevel . ".crm"
 		If (!FileExist(FileName))
-			FileAppend, % "Chrom results: " . ReferenceItem.Name . " (ilvl " . ReferenceItem.Itemlevel . ")`n", %FileName%
+			FileAppend, % "Chrom results: " . ReferenceItem.Name
+				. " (ilvl " . ReferenceItem.Itemlevel
+				. ", requires str/dex/int "
+				. ReferenceItem.RequirementStr . "/"
+				. ReferenceItem.RequirementDex . "/"
+				. ReferenceItem.RequirementInt
+				. ")`n", %FileName%
 		
 		FileAppend, % Item.ColorSetup . "`n", %FileName%
 		
@@ -222,13 +234,13 @@ ParseClipboardItem()
 				Item.Name := Item.Name . ", " . Line
 		}
 		
-		If InStr(Line, "Quality:")
+		If InStr(Line, "Quality: ")
 		{
 			; This will always have " (augmented)", so omit that when parsing.
 			Item.Quality := SubStr(Line, 11, -13)
 		}
 		
-		If InStr(Line, "Sockets:")
+		If InStr(Line, "Sockets: ")
 		{
 			Item.SocketCount := (StrLen(Line) - 9) // 2
 			
@@ -253,6 +265,12 @@ ParseClipboardItem()
 			; Apparently all socket outputs end with a space after the last socket, so no extra line of "finishing" the last link is necessary. Lazy GGG...
 		}
 		
+		If InStr(Line, "Str: ")
+			Item.RequirementStr := SubStr(Line, 6)
+		If InStr(Line, "Dex: ")
+			Item.RequirementDex := SubStr(Line, 6)
+		If InStr(Line, "Int: ")
+			Item.RequirementInt := SubStr(Line, 6)
 		
 		If InStr(Line, "Itemlevel:")
 		{
@@ -367,6 +385,9 @@ class EmptyItem
 	SocketCount := 0
 	LinkSetup := 0
 	ColorSetup := ""
+	RequirementStr := 0
+	RequirementDex := 0
+	RequirementInt := 0
 	Itemlevel := 0
 	Quality := 0
 	Sane := False
