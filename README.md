@@ -15,9 +15,9 @@ Alteration support might come at some point (anyone is free to contribute though
 
 ###How to use:
 Usage is quite simple:
-1. **Directly before you use your first orb, hover over the item and press Ctrl+N.** A confirmation tooltip will appear.
-2. **After every orb you use, hover over the item and press Ctrl+C.** The logged result will be shown in a tooltip.
-3. **If you want to use a different orb or work on a different item, start at 1.** Results will be saved in a different file.
+1. Directly before you use your first orb, hover over the item and press Ctrl+N. A confirmation tooltip will appear.
+2. After every orb you use, hover over the item and press Ctrl+C. The logged result will be shown in a tooltip.
+3. If you want to use a different orb or work on a different item, start at 1. Results will be saved in a different file.
 
 **By default, the tool will figure out what orb you used by itself.** No need to fiddle around with files when you go from jeweler to fuse, just hit Ctrl+N again before starting to fuse.
 
