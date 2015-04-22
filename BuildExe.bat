@@ -1,0 +1,1 @@
+"C:\Program Files\AutoHotkey\Compiler\Ahk2Exe.exe" /in Orber.ahk /out OrbParser.exe /icon Fuse.ico > BuildLog.txt

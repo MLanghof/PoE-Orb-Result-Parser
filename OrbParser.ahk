@@ -1,6 +1,8 @@
 ; Auto-execute section
 #Persistent
-Menu, Tray, Icon, Fuse.ico
+
+IfExist, Fuse.ico
+	Menu, Tray, Icon, Fuse.ico
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Setup the mode in which files are written.                   ;;
