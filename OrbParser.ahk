@@ -6,11 +6,12 @@ IfExist, Fuse.ico
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Setup the mode in which files are written.                   ;;
-;;   AUTO: Guesses on a best-effort basis.	                    ;;
+;;   AUTO: Guesses on a best-effort basis.                      ;;
 ;;   FUSE: One file per item with same name + sockets.          ;;
 ;;   JEWL: One file per item with same name.                    ;;
 ;;   ALTS: One file per item with same base, sockets and links. ;;
 ;;   CHRM: One file per item with same base, sockets and links. ;;
+;;   CHNC: One file per base item.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 FileMode := "AUTO"
 
@@ -89,8 +90,8 @@ OnCopyItem()
 	{
 		; This item happens to be identical to the last item. Compare to reference item instead.
 		NewMode := GetNewMode(Item, ReferenceItem)
-		If (NewMode == "DUNNO") ; This can happen when rolling with alts.
-			NewMode := Mode ; Give up.
+		If (NewMode == "DUNNO") ; This can happen when rolling with alts or chances.
+			NewMode := Mode ; Give up, will have to trust the user.
 		; Otherwise it will be handled properly by the below stuff.
 	}
 	
@@ -159,6 +160,13 @@ OnCopyItem()
 			MsgBox, Error: Same colors as previous result (impossible)`, not writing to file.
 			return
 		}
+		If (Item.RequirementStr != ReferenceItem.RequirementStr
+			or Item.RequirementDex != ReferenceItem.RequirementDex
+			or Item.RequirementInt != ReferenceItem.RequirementInt)
+		{
+			MsgBox, Error: Item requirements changed!
+			return
+		}
 		
 		FileName := ReferenceItem.Name . "_i" . ReferenceItem.Itemlevel . ".crm"
 		If (!FileExist(FileName))
@@ -174,6 +182,22 @@ OnCopyItem()
 		
 		MakeTooltip("  " . Item.ColorSetup, 2000) ; Spaces so the cursor doesn't overlap
 	}
+	
+	If (Mode == "CHNC")
+	{
+		If (ReferenceItem.Rarity != "Normal")
+		{
+			MsgBox, Error: When chancing, please use the white base as reference item!
+			return
+		}
+		
+		FileName := ReferenceItem.Name . ".chn"
+		If (!FileExist(FileName))
+			FileAppend, % "Chance results: " . ReferenceItem.Name, %FileName%
+		
+		FileAppend, % Item.Rarity . "`n", %FileName%
+	}
+	
 	If (Mode == "ALTS")
 	{
 		If (Item.Rarity == "Normal")
@@ -310,15 +334,13 @@ GetNewMode(NewItem, OldItem)
 	MaybeJewl := 0
 	MaybeFuse := 0
 	MaybeChrm := 0
+	MaybeChnc := 1
 	
 	If (NewItem.Rarity != OldItem.Rarity)
-	{
-		MsgBox, Error: Invalid orb used.`nNo transmute/regal/scour(?)/chance support yet.
-		return "ERROR"
-	}
-		
-	If (NewItem.Name != OldItem.Name)
-		MaybeAlts := 1
+		MaybeChnc := 1
+	Else
+		If (NewItem.Name != OldItem.Name)
+			MaybeAlts := 1
 	
 	If (NewItem.SocketCount != OldItem.SocketCount)
 		MaybeJewl := 1
@@ -330,7 +352,7 @@ GetNewMode(NewItem, OldItem)
 		If (NewItem.ColorSetup != OldItem.ColorSetup)
 			MaybeChrm := 1
 	}
-	PossibleModeCount := MaybeAlts + MaybeJewl + MaybeFuse + MaybeChrm
+	PossibleModeCount := MaybeAlts + MaybeJewl + MaybeFuse + MaybeChrm + MaybeChnc
 	If (PossibleModeCount == 0)
 		If (Mode == "NEW")
 		{
@@ -357,6 +379,7 @@ GetNewMode(NewItem, OldItem)
 		NewMode := (MaybeJewl ? "JEWL" : NewMode)
 		NewMode := (MaybeFuse ? "FUSE" : NewMode)
 		NewMode := (MaybeChrm ? "CHRM" : NewMode)
+		NewMode := (MaybeChnc ? "CHNC" : NewMode)
 	}
 	return NewMode
 }
