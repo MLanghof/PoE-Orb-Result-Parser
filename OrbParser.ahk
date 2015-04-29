@@ -84,6 +84,17 @@ OnCopyItem()
 		return
 	}
 	
+	
+	If (Mode == "NEW")
+	{
+		NewMode := GetNewMode(Item, ReferenceItem)
+		
+		
+	; TODO: "Did you mean to do this?"
+	
+	
+	
+	
 	NewMode := GetNewMode(Item, LastItem)
 	
 	If (NewMode == "DUNNO") ; This will never happen when Mode is "NEW", so no need to handle that separately.
@@ -105,10 +116,12 @@ OnCopyItem()
 			; First item after resetting
 			Mode := NewMode
 		Else
-			If (Mode != NewMode) {
-				MsgBox, Error: Wrong orb used.`nPlease set a new reference item when collecting results for a different project.
-				return
-			}
+			If (Mode != NewMode)
+				If not (Mode == "CHNC" and NewMode == "ALTS") ; Unsure how else to handle this
+				{
+					MsgBox, Error: Wrong orb used.`nPlease set a new reference item when collecting results for a different project.
+					return
+				}
 			;Otherwise mode doesn't change
 	}
 	Else
@@ -334,7 +347,7 @@ GetNewMode(NewItem, OldItem)
 	MaybeJewl := 0
 	MaybeFuse := 0
 	MaybeChrm := 0
-	MaybeChnc := 1
+	MaybeChnc := 0
 	
 	If (NewItem.Rarity != OldItem.Rarity)
 		MaybeChnc := 1
@@ -362,7 +375,7 @@ GetNewMode(NewItem, OldItem)
 		}
 		Else
 			; No way to judge in the case where we arrive back at the reference/previous item.
-			return "DUNNO"
+			return "UNCHANGED"
 	Else If (PossibleModeCount > 1)
 		If (FileMode == "AUTO")
 		{
@@ -371,7 +384,7 @@ GetNewMode(NewItem, OldItem)
 		}
 		Else
 			; Even if it's ambiguous, we'll let it slide.
-			return "DUNNO" ; TODO: Investigate whether this is a good idea.
+			return "USER" ; TODO: Investigate whether this is a good idea.
 	Else ; Precisely one mode active.
 	{
 		NewMode := ""
